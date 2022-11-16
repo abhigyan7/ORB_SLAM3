@@ -13,7 +13,6 @@
 #include <vector>
 #include <string>
 #include <sstream>
-#include <stdint-gcc.h>
 
 #include "FORB.h"
 
@@ -23,7 +22,7 @@ namespace DBoW2 {
 
 // --------------------------------------------------------------------------
 
-const int FORB::L=32;
+const int FORB::L=128*4;
 
 void FORB::meanValue(const std::vector<FORB::pDescriptor> &descriptors, 
   FORB::TDescriptor &mean)
@@ -39,65 +38,42 @@ void FORB::meanValue(const std::vector<FORB::pDescriptor> &descriptors,
   }
   else
   {
-    vector<int> sum(FORB::L * 8, 0);
-    
-    for(size_t i = 0; i < descriptors.size(); ++i)
+
+    mean.resize(FORB::L, 0);
+
+    float s = descriptors.size();
+
+    vector<FORB::pDescriptor>::const_iterator it;
+    for (it = descriptors.begin(); it != descriptors.end(); ++it)
     {
-      const cv::Mat &d = *descriptors[i];
-      const unsigned char *p = d.ptr<unsigned char>();
-      
-      for(int j = 0; j < d.cols; ++j, ++p)
+      const FORB::TDescriptor &desc = **it;
+      for (int i= 0; i < FORB::L; i+=4)
       {
-        if(*p & (1 << 7)) ++sum[ j*8     ];
-        if(*p & (1 << 6)) ++sum[ j*8 + 1 ];
-        if(*p & (1 << 5)) ++sum[ j*8 + 2 ];
-        if(*p & (1 << 4)) ++sum[ j*8 + 3 ];
-        if(*p & (1 << 3)) ++sum[ j*8 + 4 ];
-        if(*p & (1 << 2)) ++sum[ j*8 + 5 ];
-        if(*p & (1 << 1)) ++sum[ j*8 + 6 ];
-        if(*p & (1))      ++sum[ j*8 + 7 ];
+        mean.at<float>(i+0) += desc.at<float>(i+0);
+        mean.at<float>(i+1) += desc.at<float>(i+1);
+        mean.at<float>(i+2) += desc.at<float>(i+2);
+        mean.at<float>(i+3) += desc.at<float>(i+3);
       }
-    }
-    
-    mean = cv::Mat::zeros(1, FORB::L, CV_8U);
-    unsigned char *p = mean.ptr<unsigned char>();
-    
-    const int N2 = (int)descriptors.size() / 2 + descriptors.size() % 2;
-    for(size_t i = 0; i < sum.size(); ++i)
-    {
-      if(sum[i] >= N2)
-      {
-        // set bit
-        *p |= 1 << (7 - (i % 8));
-      }
-      
-      if(i % 8 == 7) ++p;
     }
   }
 }
 
 // --------------------------------------------------------------------------
   
-int FORB::distance(const FORB::TDescriptor &a,
+float FORB::distance(const FORB::TDescriptor &a,
   const FORB::TDescriptor &b)
 {
-  // Bit set count operation from
-  // http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
 
-  const int *pa = a.ptr<int32_t>();
-  const int *pb = b.ptr<int32_t>();
-
-  int dist=0;
-
-  for(int i=0; i<8; i++, pa++, pb++)
+  float sqd = 0.;
+  for(int i = 0; i < FORB::L; i += 4)
   {
-      unsigned  int v = *pa ^ *pb;
-      v = v - ((v >> 1) & 0x55555555);
-      v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
-      dist += (((v + (v >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24;
-  }
+    sqd += (a.at<float>(i+0) - b.at<float>(i+0))*(a.at<float>(i+0) - b.at<float>(i+0));
+    sqd += (a.at<float>(i+1) - b.at<float>(i+1))*(a.at<float>(i+1) - b.at<float>(i+1));
+    sqd += (a.at<float>(i+2) - b.at<float>(i+2))*(a.at<float>(i+2) - b.at<float>(i+2));
+    sqd += (a.at<float>(i+3) - b.at<float>(i+3))*(a.at<float>(i+3) - b.at<float>(i+3));
 
-  return dist;
+  }
+  return sqd;
 }
 
 // --------------------------------------------------------------------------
@@ -119,7 +95,7 @@ std::string FORB::toString(const FORB::TDescriptor &a)
   
 void FORB::fromString(FORB::TDescriptor &a, const std::string &s)
 {
-  a.create(1, FORB::L, CV_8U);
+  a.create(1, FORB::L, CV_32F);
   unsigned char *p = a.ptr<unsigned char>();
   
   stringstream ss(s);
@@ -174,7 +150,7 @@ void FORB::toMat32F(const std::vector<TDescriptor> &descriptors,
 void FORB::toMat8U(const std::vector<TDescriptor> &descriptors, 
   cv::Mat &mat)
 {
-  mat.create(descriptors.size(), 32, CV_8U);
+  mat.create(descriptors.size(), 32, CV_32F);
   
   unsigned char *p = mat.ptr<unsigned char>();
   
