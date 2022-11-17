@@ -20,6 +20,7 @@
 
 #include "System.h"
 #include "Converter.h"
+#include <opencv4/opencv2/core/persistence.hpp>
 #include <thread>
 #include <pangolin/pangolin.h>
 #include <iomanip>
@@ -115,13 +116,8 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
         cout << endl << "Loading ORB Vocabulary. This could take a while..." << endl;
 
         mpVocabulary = new ORBVocabulary();
-        bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
-        if(!bVocLoad)
-        {
-            cerr << "Wrong path to vocabulary. " << endl;
-            cerr << "Falied to open at: " << strVocFile << endl;
-            exit(-1);
-        }
+        cv::FileStorage yaml_vocab_file(strVocFile, cv::FileStorage::Mode::READ);
+        mpVocabulary->load(yaml_vocab_file);
         cout << "Vocabulary loaded!" << endl << endl;
 
         //Create KeyFrame Database
