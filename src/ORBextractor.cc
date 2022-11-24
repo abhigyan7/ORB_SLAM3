@@ -556,8 +556,12 @@ namespace ORB_SLAM3
 
                     vector<cv::KeyPoint> vKeysCell;
 
-                    FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
-                         vKeysCell,iniThFAST,true);
+                    auto sift = cv::SIFT::create();
+
+                    sift->detect(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX), vKeysCell);
+
+                    // FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
+                    //   vKeysCell,iniThFAST,true);
 
                     /*if(bRight && j <= 13){
                         FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
@@ -624,8 +628,8 @@ namespace ORB_SLAM3
         }
 
         // compute orientations
-        for (int level = 0; level < nlevels; ++level)
-            computeOrientation(mvImagePyramid[level], allKeypoints[level], umax);
+        // for (int level = 0; level < nlevels; ++level)
+        //     computeOrientation(mvImagePyramid[level], allKeypoints[level], umax);
     }
 
     void ORBextractor::ComputeKeyPointsOld(std::vector<std::vector<KeyPoint> > &allKeypoints)
