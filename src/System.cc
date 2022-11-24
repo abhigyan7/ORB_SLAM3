@@ -20,6 +20,8 @@
 
 #include "System.h"
 #include "Converter.h"
+#include <cstddef>
+#include <ctime>
 #include <opencv4/opencv2/core/persistence.hpp>
 #include <thread>
 #include <pangolin/pangolin.h>
@@ -33,6 +35,14 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
+
+#include <time.h>
+#include <iomanip>
+
+bool has_suffix(const std::string &str, const std::string &suffix) {
+    std::size_t index = str.find(suffix, str.size() - suffix.size());
+    return (index != std::string::npos);
+}
 
 namespace ORB_SLAM3
 {
@@ -110,14 +120,21 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 
     bool loadedAtlas = false;
 
+    clock_t tStart = clock();
     if(mStrLoadAtlasFromFile.empty())
     {
         //Load ORB Vocabulary
         cout << endl << "Loading ORB Vocabulary. This could take a while..." << endl;
 
+
         mpVocabulary = new ORBVocabulary();
-        cv::FileStorage yaml_vocab_file(strVocFile, cv::FileStorage::Mode::READ);
-        mpVocabulary->load(yaml_vocab_file);
+        bool bVocLoad = false;
+        if (has_suffix(strVocFile, ".bin")) {
+            bVocLoad = mpVocabulary->loadFromBinaryFile(strVocFile);
+        } else {
+            cv::FileStorage yaml_vocab_file(strVocFile, cv::FileStorage::Mode::READ);
+            mpVocabulary->load(yaml_vocab_file);
+        }
         cout << "Vocabulary loaded!" << endl << endl;
 
         //Create KeyFrame Database
@@ -133,7 +150,8 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
         cout << endl << "Loading ORB Vocabulary. This could take a while..." << endl;
 
         mpVocabulary = new ORBVocabulary();
-        bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
+        bool bVocLoad = false;
+        bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
         if(!bVocLoad)
         {
             cerr << "Wrong path to vocabulary. " << endl;
@@ -172,6 +190,8 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 
         //usleep(10*1000*1000);
     }
+
+     printf("Vocabulary loaded in %.2fs\n", (double)(clock() - tStart) / CLOCKS_PER_SEC);
 
 
     if (mSensor==IMU_STEREO || mSensor==IMU_MONOCULAR || mSensor==IMU_RGBD)

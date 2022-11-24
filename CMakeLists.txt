@@ -7,8 +7,8 @@ ENDIF()
 
 MESSAGE("Build type: " ${CMAKE_BUILD_TYPE})
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall   -Og")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall   -Og")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Og")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Og")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -march=native")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native")
 
@@ -336,6 +336,11 @@ target_link_libraries(mono_euroc_old ${PROJECT_NAME})
 add_executable(mono_tum_vi_old
         Examples_old/Monocular/mono_tum_vi.cc)
 target_link_libraries(mono_tum_vi_old ${PROJECT_NAME})
+
+# Build tools
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/tools)
+add_executable(bin_vocabulary tools/bin_vocabulary.cc)
+target_link_libraries(bin_vocabulary ${PROJECT_NAME})
 
 if(realsense2_FOUND)
     add_executable(mono_realsense_t265_old
