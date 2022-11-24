@@ -79,6 +79,7 @@ int main(int argc, char **argv)
 
     int fps = 20;
     float dT = 1.f/fps;
+    std::cout << "Creating SLAM system" << std::endl;
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::MONOCULAR, true);
     float imageScale = SLAM.GetImageScale();
@@ -94,6 +95,8 @@ int main(int argc, char **argv)
         int proccIm = 0;
         for(int ni=0; ni<nImages[seq]; ni++, proccIm++)
         {
+
+            cout << "Seq: " << seq << ", Frame: "<< ni << endl;
 
             // Read image from file
             im = cv::imread(vstrImageFilenames[seq][ni],cv::IMREAD_UNCHANGED); //,CV_LOAD_IMAGE_UNCHANGED);
@@ -135,6 +138,7 @@ int main(int argc, char **argv)
             std::chrono::monotonic_clock::time_point t1 = std::chrono::monotonic_clock::now();
     #endif
 
+            cout << "Attempting track..." << endl;
             // Pass the image to the SLAM system
             // cout << "tframe = " << tframe << endl;
             SLAM.TrackMonocular(im,tframe); // TODO change to monocular_inertial
@@ -206,6 +210,7 @@ int main(int argc, char **argv)
 void LoadImages(const string &strImagePath, const string &strPathTimes,
                 vector<string> &vstrImages, vector<double> &vTimeStamps)
 {
+    std::cout << "Loading files" << std::endl;
     ifstream fTimes;
     fTimes.open(strPathTimes.c_str());
     vTimeStamps.reserve(5000);
@@ -225,4 +230,5 @@ void LoadImages(const string &strImagePath, const string &strPathTimes,
 
         }
     }
+    std::cout << "finished loading files" << std::endl;
 }

@@ -56,6 +56,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv4/opencv2/core.hpp>
 #include <opencv4/opencv2/core/hal/interface.h>
 #include <opencv4/opencv2/core/types.hpp>
 #include <vector>
@@ -118,7 +119,18 @@ namespace ORB_SLAM3
         std::vector<KeyPoint> p1(1);
         p1[0] = kpt;
 
-        sift_detector->compute(img, p1, descriptors);
+        try {
+            sift_detector->compute(img, p1, descriptors);
+        } catch (std::exception e) {
+
+            cout << e.what() << endl;
+
+            cv::FileStorage store("/tmp/keypoints.bin", cv::FileStorage::WRITE);
+            cv::write(store,"keypoints",p1);
+            store.release();
+
+            cv::imwrite("/tmp/problematic_image.png", img);
+        }
 
         for (size_t i = 0; i < 128; i++)
         {
