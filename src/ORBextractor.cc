@@ -113,7 +113,7 @@ namespace ORB_SLAM3
                                      const Mat& img, const Point* pattern,
                                      float* desc)
     {
-        auto sift_detector = cv::SIFT::create();
+        auto sift_detector = cv::SIFT::create(0, 1, 0.04, 10, 1.6, CV_32F);
 
         cv::Mat descriptors;
         std::vector<KeyPoint> p1(1);
@@ -556,7 +556,7 @@ namespace ORB_SLAM3
 
                     vector<cv::KeyPoint> vKeysCell;
 
-                    auto sift = cv::SIFT::create();
+                    auto sift= cv::SIFT::create(0, 1, 0.04, 10, 1.6, CV_32F);
 
                     sift->detect(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX), vKeysCell);
 
@@ -579,8 +579,9 @@ namespace ORB_SLAM3
 
                     if(vKeysCell.empty())
                     {
-                        FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
-                             vKeysCell,minThFAST,true);
+                        // throw std::exception();
+                        // FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
+                        //      vKeysCell,minThFAST,true);
                         /*if(bRight && j <= 13){
                             FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
                                  vKeysCell,5,true);
@@ -622,8 +623,8 @@ namespace ORB_SLAM3
             {
                 keypoints[i].pt.x+=minBorderX;
                 keypoints[i].pt.y+=minBorderY;
-                keypoints[i].octave=level;
-                keypoints[i].size = scaledPatchSize;
+                // keypoints[i].octave=level;
+                // keypoints[i].size = scaledPatchSize;
             }
         }
 
@@ -807,8 +808,8 @@ namespace ORB_SLAM3
         }
 
         // and compute orientations
-        for (int level = 0; level < nlevels; ++level)
-            computeOrientation(mvImagePyramid[level], allKeypoints[level], umax);
+        // for (int level = 0; level < nlevels; ++level)
+        //     computeOrientation(mvImagePyramid[level], allKeypoints[level], umax);
     }
 
     static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Mat& descriptors,
@@ -818,6 +819,7 @@ namespace ORB_SLAM3
 
         for (size_t i = 0; i < keypoints.size(); i++)
             computeOrbDescriptor(keypoints[i], image, &pattern[0], descriptors.ptr<float>((int)i));
+
     }
 
     int ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPoint>& _keypoints,

@@ -44,6 +44,7 @@ namespace ORB_SLAM3
 
     int ORBmatcher::SearchByProjection(Frame &F, const vector<MapPoint*> &vpMapPoints, const float th, const bool bFarPoints, const float thFarPoints)
     {
+        cout << "search by projection fdkas" << endl;
         int nmatches=0, left = 0, right = 0;
 
         const bool bFactor = th!=1.0;
@@ -224,6 +225,7 @@ namespace ORB_SLAM3
 
     int ORBmatcher::SearchByBoW(KeyFrame* pKF,Frame &F, vector<MapPoint*> &vpMapPointMatches)
     {
+        cout << "search by bow" << endl;
         const vector<MapPoint*> vpMapPointsKF = pKF->GetMapPointMatches();
 
         vpMapPointMatches = vector<MapPoint*>(F.N,static_cast<MapPoint*>(NULL));
@@ -429,6 +431,7 @@ namespace ORB_SLAM3
     int ORBmatcher::SearchByProjection(KeyFrame* pKF, Sophus::Sim3f &Scw, const vector<MapPoint*> &vpPoints,
                                        vector<MapPoint*> &vpMatched, int th, float ratioHamming)
     {
+        cout << "Search by projection" << endl;
         // Get Calibration Parameters for later projection
         const float &fx = pKF->fx;
         const float &fy = pKF->fy;
@@ -536,6 +539,7 @@ namespace ORB_SLAM3
     int ORBmatcher::SearchByProjection(KeyFrame* pKF, Sophus::Sim3<float> &Scw, const std::vector<MapPoint*> &vpPoints, const std::vector<KeyFrame*> &vpPointsKFs,
                                        std::vector<MapPoint*> &vpMatched, std::vector<KeyFrame*> &vpMatchedKF, int th, float ratioHamming)
     {
+        cout << "Search by projection alks" << endl;
         // Get Calibration Parameters for later projection
         const float &fx = pKF->fx;
         const float &fy = pKF->fy;
@@ -649,6 +653,7 @@ namespace ORB_SLAM3
 
     int ORBmatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f> &vbPrevMatched, vector<int> &vnMatches12, int windowSize)
     {
+        cout << "search for init" << endl;
         int nmatches=0;
         vnMatches12 = vector<int>(F1.mvKeysUn.size(),-1);
 
@@ -657,20 +662,29 @@ namespace ORB_SLAM3
             rotHist[i].reserve(500);
         const float factor = 1.0f/HISTO_LENGTH;
 
-        vector<int> vMatchedDistance(F2.mvKeysUn.size(),INT_MAX);
+        vector<float> vMatchedDistance(F2.mvKeysUn.size(),std::numeric_limits<float>::infinity());
         vector<int> vnMatches21(F2.mvKeysUn.size(),-1);
+
+        cout << "Matcher got " << F1.mvKeysUn.size() << ", " << F2.mvKeysUn.size() << " points" << endl;
+
+        size_t iterates = 0, level_higher_than_0 = 0, vmatcheddistance2_lt_dist = 0, empty_indices = 0;
 
         for(size_t i1=0, iend1=F1.mvKeysUn.size(); i1<iend1; i1++)
         {
+            iterates++;
             cv::KeyPoint kp1 = F1.mvKeysUn[i1];
             int level1 = kp1.octave;
-            if(level1>0)
-                continue;
+            if(level1>0) {
+                level_higher_than_0 ++;
+                // continue;
+            }
 
             vector<size_t> vIndices2 = F2.GetFeaturesInArea(vbPrevMatched[i1].x,vbPrevMatched[i1].y, windowSize,level1,level1);
 
-            if(vIndices2.empty())
+            if(vIndices2.empty()) {
+                empty_indices ++;
                 continue;
+            }
 
             cv::Mat d1 = F1.mDescriptors.row(i1);
 
@@ -678,16 +692,23 @@ namespace ORB_SLAM3
             float bestDist2=std::numeric_limits<float>::infinity();
             int bestIdx2 = -1;
 
+            bool temp_waht = false;
+
             for(vector<size_t>::iterator vit=vIndices2.begin(); vit!=vIndices2.end(); vit++)
+            // for(size_t vit = 0; vit < F2.mvKeysUn.size(); vit++)
             {
                 size_t i2 = *vit;
+                // size_t i2 = vit;
 
                 cv::Mat d2 = F2.mDescriptors.row(i2);
 
                 float dist = DescriptorDistance(d1,d2);
+                cout << dist << endl;
 
-                if(vMatchedDistance[i2]<=dist)
+                if(vMatchedDistance[i2]<=dist) {
+                    temp_waht = true;
                     continue;
+                }
 
                 if(dist<bestDist)
                 {
@@ -700,6 +721,9 @@ namespace ORB_SLAM3
                     bestDist2=dist;
                 }
             }
+            if (temp_waht)
+                vmatcheddistance2_lt_dist++;
+            // cout << "For point " << vbPrevMatched[i1] << endl;
 
             if(bestDist<=TH_LOW)
             {
@@ -728,7 +752,8 @@ namespace ORB_SLAM3
                     }
                 }
             }
-
+            cout << "Best dist: " << bestDist << " between " << i1 << " and " << bestIdx2 << endl;
+            // cout << "Last match: " << i1 << " to " << bestIdx2 << endl;
         }
 
         if(mbCheckOrientation)
@@ -761,11 +786,14 @@ namespace ORB_SLAM3
             if(vnMatches12[i1]>=0)
                 vbPrevMatched[i1]=F2.mvKeysUn[vnMatches12[i1]].pt;
 
+        cout << "iterates: " << iterates << ", level_high than 0" << level_higher_than_0 << ", vmdist2ltdist " << vmatcheddistance2_lt_dist;
+        cout << ", empty indices: " << empty_indices << endl;
         return nmatches;
     }
 
     int ORBmatcher::SearchByBoW(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &vpMatches12)
     {
+        cout << "Search by bow" << endl;
         const vector<cv::KeyPoint> &vKeysUn1 = pKF1->mvKeysUn;
         const DBoW2::FeatureVector &vFeatVec1 = pKF1->mFeatVec;
         const vector<MapPoint*> vpMapPoints1 = pKF1->GetMapPointMatches();
@@ -909,6 +937,7 @@ namespace ORB_SLAM3
     int ORBmatcher::SearchForTriangulation(KeyFrame *pKF1, KeyFrame *pKF2,
                                            vector<pair<size_t, size_t> > &vMatchedPairs, const bool bOnlyStereo, const bool bCoarse)
     {
+        cout << "search for triangulation" << endl;
         const DBoW2::FeatureVector &vFeatVec1 = pKF1->mFeatVec;
         const DBoW2::FeatureVector &vFeatVec2 = pKF2->mFeatVec;
 
@@ -1458,6 +1487,7 @@ namespace ORB_SLAM3
 
     int ORBmatcher::SearchBySim3(KeyFrame* pKF1, KeyFrame* pKF2, std::vector<MapPoint *> &vpMatches12, const Sophus::Sim3f &S12, const float th)
     {
+        cout << "search by sim3" << endl;
         const float &fx = pKF1->fx;
         const float &fy = pKF1->fy;
         const float &cx = pKF1->cx;
@@ -1677,6 +1707,7 @@ namespace ORB_SLAM3
 
     int ORBmatcher::SearchByProjection(Frame &CurrentFrame, const Frame &LastFrame, const float th, const bool bMono)
     {
+        cout << "Search by projection" << endl;
         int nmatches = 0;
 
         // Rotation Histogram (to check rotation consistency)
@@ -1890,6 +1921,7 @@ namespace ORB_SLAM3
 
     int ORBmatcher::SearchByProjection(Frame &CurrentFrame, KeyFrame *pKF, const set<MapPoint*> &sAlreadyFound, const float th , const int ORBdist)
     {
+        cout << "search by projection fdsf" << endl;
         int nmatches = 0;
 
         const Sophus::SE3f Tcw = CurrentFrame.GetPose();
@@ -2064,7 +2096,7 @@ float ORBmatcher::DescriptorDistance(const cv::Mat &a, const cv::Mat &b)
 
         float dist=0;
 
-        for(int i=0; i<8; i++, pa++, pb++)
+        for(int i=0; i<128; i++, pa+=4, pb+=4)
         {
             float x = (*pa -*pb) * (*pa - *pb);
             dist += x;
