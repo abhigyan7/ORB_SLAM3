@@ -2508,9 +2508,9 @@ void Tracking::MonocularInitialization()
             cv::circle(blank_image, p2, 2, cv::Scalar(0, 255, 0));
         }
         cout << nmatches << " Matches.\n";
-        cv::imshow("Matches" ,blank_image);
-        cv::waitKey(0);
-        cout << "moving on\n";
+        // cv::imshow("Matches" ,blank_image);
+        // cv::waitKey(0);
+        // cout << "moving on\n";
 
         // Check if there are enough correspondences
         if(nmatches<100)

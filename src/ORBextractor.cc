@@ -623,7 +623,7 @@ namespace ORB_SLAM3
             {
                 keypoints[i].pt.x+=minBorderX;
                 keypoints[i].pt.y+=minBorderY;
-                // keypoints[i].octave=level;
+                keypoints[i].octave=level;
                 // keypoints[i].size = scaledPatchSize;
             }
         }
@@ -816,6 +816,10 @@ namespace ORB_SLAM3
                                    const vector<Point>& pattern)
     {
         descriptors = Mat::zeros((int) keypoints.size(), 128, DESCRIPTOR_TYPE);
+        char file_str[100];
+        sprintf(file_str, "test_image%d.png", rand());
+
+        cv::imwrite(file_str, image);
 
         for (size_t i = 0; i < keypoints.size(); i++)
             computeOrbDescriptor(keypoints[i], image, &pattern[0], descriptors.ptr<float>((int)i));
