@@ -653,8 +653,7 @@ namespace ORB_SLAM3
 
     int ORBmatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f> &vbPrevMatched, vector<int> &vnMatches12, int windowSize)
     {
-        cout << "search for init" << endl;
-        int n_ratio_test_pass = 0, n_ratio_test_fail = 0;
+        cout << "Trying to initialize: " << endl;
         int nmatches=0;
         vnMatches12 = vector<int>(F1.mvKeysUn.size(),-1);
 
@@ -668,15 +667,11 @@ namespace ORB_SLAM3
 
         cout << "Matcher got " << F1.mvKeysUn.size() << ", " << F2.mvKeysUn.size() << " points" << endl;
 
-        size_t iterates = 0, level_higher_than_0 = 0, vmatcheddistance2_lt_dist = 0, empty_indices = 0;
-
         for(size_t i1=0, iend1=F1.mvKeysUn.size(); i1<iend1; i1++)
         {
-            iterates++;
             cv::KeyPoint kp1 = F1.mvKeysUn[i1];
             int level1 = kp1.octave;
             if(level1>0) {
-                level_higher_than_0 ++;
                 // continue;
             }
 
@@ -693,34 +688,21 @@ namespace ORB_SLAM3
             float bestDist2=std::numeric_limits<float>::infinity();
             int bestIdx2 = -1;
 
-            bool temp_waht = false;
-
             for(vector<size_t>::iterator vit=vIndices2.begin(); vit!=vIndices2.end(); vit++)
-            // for(size_t vit = 0; vit < F2.mvKeysUn.size(); vit++)
             {
                 size_t i2 = *vit;
-                // size_t i2 = vit;
 
                 cv::Mat d2 = F2.mDescriptors.row(i2);
 
                 float dist = DescriptorDistance(d1,d2);
-                // cout << "Points " << F1.mvKeysUn[i1].pt << " and " << F2.mvKeysUn[i2].pt << ": " << dist << endl;
-
-                float _dist = abs(F1.mvKeysUn[i1].pt.x - F2.mvKeysUn[i2].pt.x)
-                     + abs(F1.mvKeysUn[i1].pt.y - F2.mvKeysUn[i2].pt.y);
-
-                // if (_dist < 4)
-                //     cout << "Descriptors: " << d1 << ", " << d2 << endl;
 
 
                 if(vMatchedDistance[i2]<=dist) {
-                    temp_waht = true;
                     continue;
                 }
 
                 if(dist<bestDist)
                 {
-                    // cout << "Descriptors: " << d1 << ", " << d2 << endl;
                     bestDist2=bestDist;
                     bestDist=dist;
                     bestIdx2=i2;
@@ -730,16 +712,11 @@ namespace ORB_SLAM3
                     bestDist2=dist;
                 }
             }
-            if (temp_waht)
-                vmatcheddistance2_lt_dist++;
-            // cout << "For point " << vbPrevMatched[i1] << endl;
-            //
 
             if(bestDist<=TH_LOW)
             {
                 if(bestDist<(float)bestDist2*mfNNratio)
                 {
-                    n_ratio_test_pass++;
                     if(vnMatches21[bestIdx2]>=0)
                     {
                         vnMatches12[vnMatches21[bestIdx2]]=-1;
@@ -761,11 +738,8 @@ namespace ORB_SLAM3
                         assert(bin>=0 && bin<HISTO_LENGTH);
                         rotHist[bin].push_back(i1);
                     }
-                } else {
-                    n_ratio_test_fail++;
                 }
             }
-            // cout << "Last match: " << i1 << " to " << bestIdx2 << endl;
         }
 
         if(mbCheckOrientation)
@@ -798,9 +772,6 @@ namespace ORB_SLAM3
             if(vnMatches12[i1]>=0)
                 vbPrevMatched[i1]=F2.mvKeysUn[vnMatches12[i1]].pt;
 
-        cout << "iterates: " << iterates << ", level_high than 0" << level_higher_than_0 << ", vmdist2ltdist " << vmatcheddistance2_lt_dist;
-        cout << ", empty indices: " << empty_indices << endl;
-        cout << "Ratio test: " << n_ratio_test_pass << ", " << n_ratio_test_fail << endl;
         return nmatches;
     }
 

@@ -41,21 +41,17 @@ void FORB::meanValue(const std::vector<FORB::pDescriptor> &descriptors,
 
     mean.resize(FORB::L, 0);
 
-    float s = descriptors.size();
-
     vector<FORB::pDescriptor>::const_iterator it;
     for (it = descriptors.begin(); it != descriptors.end(); ++it)
     {
       const FORB::TDescriptor &desc = **it;
-      for (int i= 0; i < FORB::L; i+=4)
+      for (int i= 0; i < FORB::L; i+=1)
       {
-        mean.at<float>(i+0) += desc.at<float>(i+0);
-        mean.at<float>(i+1) += desc.at<float>(i+1);
-        mean.at<float>(i+2) += desc.at<float>(i+2);
-        mean.at<float>(i+3) += desc.at<float>(i+3);
+        mean.at<float>(i) += desc.at<float>(i);
       }
     }
   }
+  mean = mean / static_cast<float>(descriptors.size());
 }
 
 // --------------------------------------------------------------------------
@@ -65,12 +61,9 @@ float FORB::distance(const FORB::TDescriptor &a,
 {
 
   float sqd = 0.;
-  for(int i = 0; i < FORB::L; i += 4)
+  for(int i = 0; i < FORB::L; i += 1)
   {
-    sqd += (a.at<float>(i+0) - b.at<float>(i+0))*(a.at<float>(i+0) - b.at<float>(i+0));
-    sqd += (a.at<float>(i+1) - b.at<float>(i+1))*(a.at<float>(i+1) - b.at<float>(i+1));
-    sqd += (a.at<float>(i+2) - b.at<float>(i+2))*(a.at<float>(i+2) - b.at<float>(i+2));
-    sqd += (a.at<float>(i+3) - b.at<float>(i+3))*(a.at<float>(i+3) - b.at<float>(i+3));
+    sqd += (a.at<float>(i) - b.at<float>(i))*(a.at<float>(i) - b.at<float>(i));
 
   }
   return sqd;
@@ -85,7 +78,7 @@ std::string FORB::toString(const FORB::TDescriptor &a)
   
   for(int i = 0; i < a.cols; ++i, ++p)
   {
-    ss << (int)*p << " ";
+    ss << (float)*p << " ";
   }
   
   return ss.str();
@@ -96,16 +89,16 @@ std::string FORB::toString(const FORB::TDescriptor &a)
 void FORB::fromString(FORB::TDescriptor &a, const std::string &s)
 {
   a.create(1, FORB::L, CV_32F);
-  unsigned char *p = a.ptr<unsigned char>();
+  unsigned char *p = a.ptr<float>();
   
   stringstream ss(s);
   for(int i = 0; i < FORB::L; ++i, ++p)
   {
-    int n;
+    float n;
     ss >> n;
     
     if(!ss.fail()) 
-      *p = (unsigned char)n;
+      *p = (float)n;
   }
   
 }

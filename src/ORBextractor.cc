@@ -108,8 +108,8 @@ namespace ORB_SLAM3
     }
 
 
-    const float factorPI = (float)(CV_PI/180.f);
-    static void computeOrbDescriptor(const KeyPoint& kpt,
+const float factorPI = (float)(CV_PI/180.f);
+static void computeOrbDescriptor(const KeyPoint& kpt,
                                      const Mat& img, const Point* pattern,
                                      float* desc)
     {
@@ -119,18 +119,7 @@ namespace ORB_SLAM3
         std::vector<KeyPoint> p1(1);
         p1[0] = kpt;
 
-        try {
-            sift_detector->compute(img, p1, descriptors);
-        } catch (std::exception e) {
-
-            cout << e.what() << endl;
-
-            cv::FileStorage store("/tmp/keypoints.bin", cv::FileStorage::WRITE);
-            cv::write(store,"keypoints",p1);
-            store.release();
-
-            cv::imwrite("/tmp/problematic_image.png", img);
-        }
+        sift_detector->compute(img, p1, descriptors);
 
         for (size_t i = 0; i < 128; i++)
         {
@@ -816,14 +805,17 @@ namespace ORB_SLAM3
                                    const vector<Point>& pattern)
     {
         descriptors = Mat::zeros((int) keypoints.size(), 128, DESCRIPTOR_TYPE);
-        char file_str[100];
-        sprintf(file_str, "test_image%d.png", rand());
 
-        cv::imwrite(file_str, image);
-
-        for (size_t i = 0; i < keypoints.size(); i++)
-            computeOrbDescriptor(keypoints[i], image, &pattern[0], descriptors.ptr<float>((int)i));
-
+        try {
+            for (size_t i = 0; i < keypoints.size(); i++)
+                computeOrbDescriptor(keypoints[i], image, &pattern[0], descriptors.ptr<float>((int)i));
+        } catch (std::exception e) {
+            cout << e.what() << endl;
+            cv::FileStorage store("/tmp/keypoints.bin", cv::FileStorage::WRITE);
+            cv::write(store, "keypoints", keypoints);
+            store.release();
+            cv::imwrite("/tmp/problematic_iamge.png", image);
+        }
     }
 
     int ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPoint>& _keypoints,
