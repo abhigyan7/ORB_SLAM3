@@ -41,7 +41,7 @@ namespace ORB_SLAM3
     bool TwoViewReconstruction::Reconstruct(const std::vector<cv::KeyPoint>& vKeys1, const std::vector<cv::KeyPoint>& vKeys2, const vector<int> &vMatches12,
                                              Sophus::SE3f &T21, vector<cv::Point3f> &vP3D, vector<bool> &vbTriangulated)
     {
-        cerr << "In two view reconstruction::reconstruct" << endl;
+        cout << "In two view reconstruction::reconstruct" << endl;
         mvKeys1.clear();
         mvKeys2.clear();
 
@@ -114,7 +114,7 @@ namespace ORB_SLAM3
         if(SH+SF == 0.f) return false;
         float RH = SH/(SH+SF);
 
-        cerr << "RH: " << RH << endl;
+        cout << "RH: " << RH << endl;
 
         float minParallax = 1.0;
 
@@ -478,7 +478,7 @@ namespace ORB_SLAM3
     bool TwoViewReconstruction::ReconstructF(vector<bool> &vbMatchesInliers, Eigen::Matrix3f &F21, Eigen::Matrix3f &K,
                                              Sophus::SE3f &T21, vector<cv::Point3f> &vP3D, vector<bool> &vbTriangulated, float minParallax, int minTriangulated)
     {
-        cerr << "In reconstruct F" << endl;
+        cout << "In reconstruct F" << endl;
         int N=0;
         for(size_t i=0, iend = vbMatchesInliers.size() ; i<iend; i++)
             if(vbMatchesInliers[i])
@@ -523,7 +523,7 @@ namespace ORB_SLAM3
         // If there is not a clear winner or not enough triangulated points reject initialization
         if(maxGood<nMinGood || nsimilar>1)
         {
-            cerr << "Not any clear winner, early stopping... fdlasf" << endl;
+            cout << "Not any clear winner, early stopping... fdlasf" << endl;
             return false;
         }
 
@@ -570,7 +570,7 @@ namespace ORB_SLAM3
             }
         }
 
-        cerr << "No solution, exiting dlfiah" << endl;
+        cout << "No solution, exiting dlfiah" << endl;
 
 
         return false;
@@ -580,7 +580,7 @@ namespace ORB_SLAM3
                                              Sophus::SE3f &T21, vector<cv::Point3f> &vP3D, vector<bool> &vbTriangulated, float minParallax, int minTriangulated)
     {
 
-        cerr << "In ReconstructH" << endl;
+        cout << "In ReconstructH" << endl;
         int N=0;
         for(size_t i=0, iend = vbMatchesInliers.size() ; i<iend; i++)
             if(vbMatchesInliers[i])
@@ -607,7 +607,7 @@ namespace ORB_SLAM3
         if(d1/d2<1.00001 || d2/d3<1.00001)
         {
             return false;
-            cerr << "Early stopping hjfdas" << endl;
+            cout << "Early stopping hjfdas" << endl;
         }
 
         vector<Eigen::Matrix3f> vR;
@@ -738,11 +738,11 @@ namespace ORB_SLAM3
             T21 = Sophus::SE3f(vR[bestSolutionIdx], vt[bestSolutionIdx]);
             vbTriangulated = bestTriangulated;
 
-            cerr << "Good solution found fdskjja" << endl;
+            cout << "Good solution found fdskjja" << endl;
             return true;
         }
 
-        cerr << "No good solution found oarevd" << endl;
+        cout << "No good solution found oarevd" << endl;
         return false;
     }
 

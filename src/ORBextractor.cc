@@ -59,6 +59,7 @@
 #include <opencv4/opencv2/core.hpp>
 #include <opencv4/opencv2/core/hal/interface.h>
 #include <opencv4/opencv2/core/types.hpp>
+#include <system_error>
 #include <vector>
 #include <iostream>
 
@@ -547,7 +548,14 @@ static void computeOrbDescriptor(const KeyPoint& kpt,
 
                     auto sift= cv::SIFT::create(0, 1, 0.04, 10, 1.6, CV_32F);
 
-                    sift->detect(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX), vKeysCell);
+                    try {
+                        sift->detect(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX), vKeysCell);
+                    } catch (std::exception e){
+                        cout << e.what() << endl;
+                        cout << "Level: " << level << endl;
+                        cv::imshow("image", mvImagePyramid[level]);
+                        cv::waitKey(0);
+                    }
 
                     // FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
                     //   vKeysCell,iniThFAST,true);

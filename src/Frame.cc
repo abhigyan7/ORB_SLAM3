@@ -686,7 +686,7 @@ vector<size_t> Frame::GetFeaturesInArea(const float &x, const float  &y, const f
         return vIndices;
     }
 
-    const bool bCheckLevels = (minLevel>0) || (maxLevel>=0);
+    const bool bCheckLevels = ((minLevel>0) || (maxLevel>=0)) && false;
 
     for(int ix = nMinCellX; ix<=nMaxCellX; ix++)
     {

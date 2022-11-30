@@ -74,6 +74,10 @@ namespace ORB_SLAM3
                 const vector<size_t> vIndices =
                         F.GetFeaturesInArea(pMP->mTrackProjX,pMP->mTrackProjY,r*F.mvScaleFactors[nPredictedLevel],nPredictedLevel-1,nPredictedLevel);
 
+                if (vIndices.empty()) {
+                    cout << "Empty feature vector at ORBmatcher.cc:78" << endl;
+                }
+
                 if(!vIndices.empty()){
                     const cv::Mat MPdescriptor = pMP->GetDescriptor();
 
@@ -152,8 +156,10 @@ namespace ORB_SLAM3
                     const vector<size_t> vIndices =
                             F.GetFeaturesInArea(pMP->mTrackProjXR,pMP->mTrackProjYR,r*F.mvScaleFactors[nPredictedLevel],nPredictedLevel-1,nPredictedLevel,true);
 
-                    if(vIndices.empty())
+                    if(vIndices.empty()) {
+                        cout << "Empty feature vector at ORBmatcher.cc:78" << endl;
                         continue;
+                    }
 
                     const cv::Mat MPdescriptor = pMP->GetDescriptor();
 
@@ -678,7 +684,6 @@ namespace ORB_SLAM3
             vector<size_t> vIndices2 = F2.GetFeaturesInArea(vbPrevMatched[i1].x,vbPrevMatched[i1].y, windowSize,-1,-1);
 
             if(vIndices2.empty()) {
-                empty_indices ++;
                 continue;
             }
 
