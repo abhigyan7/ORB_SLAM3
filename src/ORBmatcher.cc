@@ -231,7 +231,7 @@ namespace ORB_SLAM3
 
     int ORBmatcher::SearchByBoW(KeyFrame* pKF,Frame &F, vector<MapPoint*> &vpMapPointMatches)
     {
-        cout << "search by bow" << endl;
+        cout << "search by bow kf f" << endl;
         const vector<MapPoint*> vpMapPointsKF = pKF->GetMapPointMatches();
 
         vpMapPointMatches = vector<MapPoint*>(F.N,static_cast<MapPoint*>(NULL));
@@ -241,8 +241,8 @@ namespace ORB_SLAM3
         int nmatches=0;
 
         vector<int> rotHist[HISTO_LENGTH];
-        for(int i=0;i<HISTO_LENGTH;i++)
-            rotHist[i].reserve(500);
+        // for(int i=0;i<HISTO_LENGTH;i++)
+        //     rotHist[i].reserve(500);
         const float factor = 1.0f/HISTO_LENGTH;
 
         // We perform the matching over ORB that belong to the same vocabulary node (at a certain level)
@@ -664,8 +664,8 @@ namespace ORB_SLAM3
         vnMatches12 = vector<int>(F1.mvKeysUn.size(),-1);
 
         vector<int> rotHist[HISTO_LENGTH];
-        for(int i=0;i<HISTO_LENGTH;i++)
-            rotHist[i].reserve(500);
+        // for(int i=0;i<HISTO_LENGTH;i++)
+        //     rotHist[i].reserve(500);
         const float factor = 1.0f/HISTO_LENGTH;
 
         vector<float> vMatchedDistance(F2.mvKeysUn.size(),std::numeric_limits<float>::infinity());
@@ -782,7 +782,7 @@ namespace ORB_SLAM3
 
     int ORBmatcher::SearchByBoW(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &vpMatches12)
     {
-        cout << "Search by bow" << endl;
+        cout << "Search by bow kf kf" << endl;
         const vector<cv::KeyPoint> &vKeysUn1 = pKF1->mvKeysUn;
         const DBoW2::FeatureVector &vFeatVec1 = pKF1->mFeatVec;
         const vector<MapPoint*> vpMapPoints1 = pKF1->GetMapPointMatches();
