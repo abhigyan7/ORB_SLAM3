@@ -74,10 +74,6 @@ namespace ORB_SLAM3
                 const vector<size_t> vIndices =
                         F.GetFeaturesInArea(pMP->mTrackProjX,pMP->mTrackProjY,r*F.mvScaleFactors[nPredictedLevel],nPredictedLevel-1,nPredictedLevel);
 
-                if (vIndices.empty()) {
-                    cout << "Empty feature vector at ORBmatcher.cc:78" << endl;
-                }
-
                 if(!vIndices.empty()){
                     const cv::Mat MPdescriptor = pMP->GetDescriptor();
 
@@ -157,7 +153,6 @@ namespace ORB_SLAM3
                             F.GetFeaturesInArea(pMP->mTrackProjXR,pMP->mTrackProjYR,r*F.mvScaleFactors[nPredictedLevel],nPredictedLevel-1,nPredictedLevel,true);
 
                     if(vIndices.empty()) {
-                        cout << "Empty feature vector at ORBmatcher.cc:78" << endl;
                         continue;
                     }
 
@@ -1102,6 +1097,7 @@ namespace ORB_SLAM3
                                                                         : (bestIdx2 < pKF2 -> NLeft) ? pKF2 -> mvKeys[bestIdx2]
                                                                                                      : pKF2 -> mvKeysRight[bestIdx2 - pKF2 -> NLeft];
                         vMatches12[idx1]=bestIdx2;
+                        // vbMatched2[bestIdx2] = true;
                         nmatches++;
 
                         if(mbCheckOrientation)
@@ -1146,6 +1142,7 @@ namespace ORB_SLAM3
                 for(size_t j=0, jend=rotHist[i].size(); j<jend; j++)
                 {
                     vMatches12[rotHist[i][j]]=-1;
+                    // vbMatched2[vMatches12[rotHist[i][j]]] = false;
                     nmatches--;
                 }
             }

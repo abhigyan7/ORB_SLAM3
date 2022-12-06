@@ -381,6 +381,104 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor* extra
     mpMutexImu = new std::mutex();
 }
 
+Frame& Frame::operator=(const Frame& other)
+{
+    Frame temp(other);
+
+    mpcpi = temp.mpcpi;
+    mpORBvocabulary = temp.mpORBvocabulary;
+    mpORBextractorLeft = temp.mpORBextractorLeft;
+    mpORBextractorRight = temp.mpORBextractorRight;
+    mTimeStamp = temp.mTimeStamp;
+    mK = temp.mK.clone();
+    mK_ = temp.mK_;
+    mDistCoef = temp.mDistCoef.clone();
+    mbf = temp.mbf;
+    mb = temp.mb;
+    mThDepth = temp.mThDepth;
+    N = temp.N;
+    mvKeys = temp.mvKeys;
+    mvKeysRight = temp.mvKeysRight;
+    mvKeysUn = temp.mvKeysUn;
+    mvuRight = temp.mvuRight;
+    mvDepth = temp.mvDepth;
+    mBowVec = temp.mBowVec;
+    mFeatVec = temp.mFeatVec;
+    mDescriptors = temp.mDescriptors.clone();
+    mDescriptorsRight = temp.mDescriptorsRight.clone();
+    mvbOutlier = temp.mvbOutlier;
+    mImuCalib = temp.mImuCalib;
+    mnCloseMPs = temp.mnCloseMPs;
+    mpImuPreintegrated = temp.mpImuPreintegrated;
+    mpImuPreintegratedFrame = temp.mpImuPreintegratedFrame;
+    mImuBias = temp.mImuBias;
+    mnId = temp.mnId;
+    mpReferenceKF = temp.mpReferenceKF;
+    mnScaleLevels = temp.mnScaleLevels;
+    mfScaleFactor = temp.mfScaleFactor;
+    mfLogScaleFactor = temp.mfLogScaleFactor;
+    mvScaleFactors = temp.mvScaleFactors;
+    mvInvScaleFactors = temp.mvInvScaleFactors;
+    mNameFile = temp.mNameFile;
+    mnDataset = temp.mnDataset;
+    mvLevelSigma2 = temp.mvLevelSigma2;
+    mvInvLevelSigma2 = temp.mvInvLevelSigma2;
+    mpPrevFrame = temp.mpPrevFrame;
+    mpLastKeyFrame = temp.mpLastKeyFrame;
+    mbIsSet = temp.mbIsSet;
+    mbImuPreintegrated = temp.mbImuPreintegrated;
+    mpMutexImu = temp.mpMutexImu;
+    mpCamera = temp.mpCamera;
+    mpCamera2 = temp.mpCamera2;
+    Nleft = temp.Nleft;
+    Nright = temp.Nright;
+    monoLeft = temp.monoLeft;
+    monoRight = temp.monoRight;
+    mvLeftToRightMatch = temp.mvLeftToRightMatch;
+    mvRightToLeftMatch = temp.mvRightToLeftMatch;
+    mvStereo3Dpoints = temp.mvStereo3Dpoints;
+    mTlr = temp.mTlr;
+    mRlr = temp.mRlr;
+    mtlr = temp.mtlr;
+    mTrl = temp.mTrl;
+    mTcw = temp.mTcw;
+    mbHasPose = temp.mbHasPose;
+    mbHasVelocity = temp.mbHasVelocity;
+    mvpMapPoints = temp.mvpMapPoints;
+
+    for(int i=0;i<FRAME_GRID_COLS;i++)
+        for(int j=0; j<FRAME_GRID_ROWS; j++){
+            mGrid[i][j]=temp.mGrid[i][j];
+            if(temp.Nleft > 0){
+                mGridRight[i][j] = temp.mGridRight[i][j];
+            }
+        }
+
+    if(temp.mbHasPose)
+        SetPose(temp.GetPose());
+
+    if(temp.HasVelocity())
+    {
+        SetVelocity(temp.GetVelocity());
+    }
+
+    mmProjectPoints = temp.mmProjectPoints;
+    mmMatchedInImage = temp.mmMatchedInImage;
+
+    imgLeft = temp.imgLeft.clone();
+    imgRight = temp.imgRight.clone();
+
+    mnScaleLevels = mpORBextractorLeft->GetLevels();
+    mfScaleFactor = mpORBextractorLeft->GetScaleFactor();
+    mfLogScaleFactor = log(mfScaleFactor);
+    mvScaleFactors = mpORBextractorLeft->GetScaleFactors();
+    mvInvScaleFactors = mpORBextractorLeft->GetInverseScaleFactors();
+    mvLevelSigma2 = mpORBextractorLeft->GetScaleSigmaSquares();
+    mvInvLevelSigma2 = mpORBextractorLeft->GetInverseScaleSigmaSquares();
+
+    return *this;
+}
+
 
 void Frame::AssignFeaturesToGrid()
 {

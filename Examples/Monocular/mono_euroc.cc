@@ -98,6 +98,9 @@ int main(int argc, char **argv)
 
             cout << "Seq: " << seq << ", Frame: "<< ni << endl;
 
+            // if (ni < 500 && ni > 3)
+            //     continue;
+
             // Read image from file
             im = cv::imread(vstrImageFilenames[seq][ni],cv::IMREAD_UNCHANGED); //,CV_LOAD_IMAGE_UNCHANGED);
             double tframe = vTimestampsCam[seq][ni];

@@ -1584,10 +1584,38 @@ Sophus::SE3f Tracking::GrabImageMonocular(const cv::Mat &im, const double &times
 
     if (mSensor == System::MONOCULAR)
     {
-        if(mState==NOT_INITIALIZED || mState==NO_IMAGES_YET ||(lastID - initID) < mMaxFrames)
+        if(mState==NOT_INITIALIZED || mState==NO_IMAGES_YET ||(lastID - initID) < mMaxFrames) {
+            cout << "Entering frame into an uninitialized system...";
+            // cout << "Printing vector contents: " << endl;
+            // cout << "Vector size jfkd: " << mCurrentFrame.mvpMapPoints.size() << endl;
+            // for (size_t __i = 0; __i < mCurrentFrame.mvpMapPoints.size(); __i++)
+            // {
+            //     cout << "I: " << __i << "  ";
+            //     cout << mCurrentFrame.mvpMapPoints[__i] << endl;
+            // }
+            // cout << endl;
             mCurrentFrame = Frame(mImGray,timestamp,mpIniORBextractor,mpORBVocabulary,mpCamera,mDistCoef,mbf,mThDepth);
-        else
-            mCurrentFrame = Frame(mImGray,timestamp,mpORBextractorLeft,mpORBVocabulary,mpCamera,mDistCoef,mbf,mThDepth);
+            cout << " Done" << endl;
+        } else {
+            cout << "Entering frame into an initialized system..." << endl;
+            Frame temp(mImGray,timestamp,mpORBextractorLeft,mpORBVocabulary,mpCamera,mDistCoef,mbf,mThDepth);
+
+            // cout << "Printing vector contents: " << endl;
+            // cout << "Vector size jfkd: " << temp.mvpMapPoints.size() << endl;
+            // for (size_t __i = 0; __i < temp.mvpMapPoints.size(); __i++)
+            // {
+            //     cout << "I: " << __i << "  ";
+            //     cout << temp.mvpMapPoints[__i] << endl;
+            // }
+            // cout << endl;
+            mCurrentFrame.mvpMapPoints.clear();
+            vector<MapPoint*> ___temp = vector<MapPoint*>();
+            std::swap(mCurrentFrame.mvpMapPoints, ___temp);
+            mCurrentFrame.mvpMapPoints = vector<MapPoint*>();
+            mCurrentFrame.mvpMapPoints.reserve(temp.mvpMapPoints.size());
+            mCurrentFrame = temp;
+            cout << " Done" << endl;
+        }
     }
     else if(mSensor == System::IMU_MONOCULAR)
     {

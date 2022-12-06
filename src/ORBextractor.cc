@@ -546,7 +546,7 @@ static void computeOrbDescriptor(const KeyPoint& kpt,
 
                     vector<cv::KeyPoint> vKeysCell;
 
-                    auto sift= cv::SIFT::create(0, 1, 0.04, 10, 1.6, CV_32F);
+                    auto sift= cv::SIFT::create(0, 1, 0.04, 10, 0.6, CV_32F);
 
                     try {
                         sift->detect(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX), vKeysCell);
@@ -558,7 +558,7 @@ static void computeOrbDescriptor(const KeyPoint& kpt,
                     }
 
                     // FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
-                    //   vKeysCell,iniThFAST,true);
+                    //     vKeysCell,iniThFAST,true);
 
                     /*if(bRight && j <= 13){
                         FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
@@ -624,6 +624,8 @@ static void computeOrbDescriptor(const KeyPoint& kpt,
                 // keypoints[i].size = scaledPatchSize;
             }
         }
+
+        cout << "Detected " << nfeatures << " points" << endl;
 
         // compute orientations
         // for (int level = 0; level < nlevels; ++level)
