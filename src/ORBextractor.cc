@@ -546,10 +546,12 @@ static void computeOrbDescriptor(const KeyPoint& kpt,
 
                     vector<cv::KeyPoint> vKeysCell;
 
-                    auto sift= cv::SIFT::create(0, 1, 0.04, 10, 1.6, CV_32F);
+                    auto sift= cv::SIFT::create(0, 1, 0.04, 10, 0.6, CV_32F);
 
                     try {
-                        sift->detect(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX), vKeysCell);
+                        // sift->detect(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX), vKeysCell);
+                        FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
+                            vKeysCell,iniThFAST,true);
                     } catch (std::exception e){
                         cout << e.what() << endl;
                         cout << "Level: " << level << endl;
@@ -557,8 +559,6 @@ static void computeOrbDescriptor(const KeyPoint& kpt,
                         cv::waitKey(0);
                     }
 
-                    // FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
-                    //   vKeysCell,iniThFAST,true);
 
                     /*if(bRight && j <= 13){
                         FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
@@ -577,8 +577,8 @@ static void computeOrbDescriptor(const KeyPoint& kpt,
                     if(vKeysCell.empty())
                     {
                         // throw std::exception();
-                        // FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
-                        //      vKeysCell,minThFAST,true);
+                        FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
+                              vKeysCell,minThFAST,true);
                         /*if(bRight && j <= 13){
                             FAST(mvImagePyramid[level].rowRange(iniY,maxY).colRange(iniX,maxX),
                                  vKeysCell,5,true);

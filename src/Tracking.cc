@@ -33,6 +33,7 @@
 
 #include <mutex>
 #include <chrono>
+#include <opencv4/opencv2/highgui.hpp>
 #include <opencv4/opencv2/imgproc.hpp>
 
 
@@ -2502,15 +2503,19 @@ void Tracking::MonocularInitialization()
                 continue;
             cv::Point p1 = mInitialFrame.mvKeysUn[match_id].pt;
             cv::Point p2 = mCurrentFrame.mvKeysUn[mvIniMatches[match_id]].pt;
-            // cout << "matched " << p1 << " to " << p2 << endl;
+            cout << "matched " << p1 << " to " << p2 << endl;
             cv::line(blank_image, p1, p2, cv::Scalar(0,0,0), 1);
             cv::circle(blank_image, p1, 4, cv::Scalar(255, 0, 0));
             cv::circle(blank_image, p2, 2, cv::Scalar(0, 255, 0));
         }
         cout << nmatches << " Matches.\n";
-        // cv::imshow("Matches" ,blank_image);
-        // cv::waitKey(0);
-        // cout << "moving on\n";
+        // if (nmatches < 150)
+        // {
+        //     cv::imshow("Matches" ,blank_image);
+        //     cv::waitKey(0);
+        //     cv::destroyWindow("Matches");
+        //     cout << "moving on\n";
+        // }
 
         // Check if there are enough correspondences
         if(nmatches<100)
